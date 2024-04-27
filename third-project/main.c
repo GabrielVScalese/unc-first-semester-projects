@@ -65,6 +65,17 @@ void setPixelColor (int lineCont, int colCont, int value, int matrixLine, int ma
     matrix[lineCont][colCont + 2] = value;
 }
 
+void printMatrix (int line, int col, int matrix[line][col])
+{
+    for (int i = 0; i < line; i++)
+    {
+        for (int j = 0; j < col; j++)
+            printf("%d ", matrix[i][j]);
+        
+        printf("\n");
+    }
+}
+
 int main ()
 {
     // Obtendo primeira linha
@@ -124,6 +135,9 @@ int main ()
         }
     }
 
+    // Printando matriz comprimida
+    printMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressesdMatrix);
+
     // Transformando matriz para dar constraste
     int maxColorFrequencyIndex = getMaxColorFrequencyIndexInMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressesdMatrix);
 
@@ -172,6 +186,9 @@ int main ()
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
             }
+
+    // Printando matrix RGB contrastada
+    printMatrix(RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
 
     return 0;
 }
