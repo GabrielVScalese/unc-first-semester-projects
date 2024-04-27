@@ -34,6 +34,8 @@ int getColorIndex (int rgbValues[])
     // 255 255 0
     if (rgbValues[0] == 255 && rgbValues[1] == 255 && rgbValues[2] == 0)
         return 4;
+    
+    return -1;
 }
 
 // Obtem frequencia de uma cor na matriz
@@ -48,22 +50,18 @@ int getColorFrequencyInMatrix (int colorIndex, int line, int col, int matrix[lin
 }
 
 // Obtem o indice da cor com maior frequencia na matriz
-int getMaxColorFrequencyIndexInMatrix (int line, int col, int matrix[line][col])
+int getMaxColorFrequencyInMatrix (int line, int col, int matrix[line][col])
 {
     int maxValue = -1;
     int colorsFrenquencies[] = {getColorFrequencyInMatrix(0, line, col, matrix), getColorFrequencyInMatrix(1, line, col, matrix), 
                                 getColorFrequencyInMatrix(2, line, col, matrix), getColorFrequencyInMatrix(3, line, col, matrix), 
                                 getColorFrequencyInMatrix(4, line, col, matrix)};
 
-    int maxColorFrequencyIndex;
     for (int i = 0; i < COLORS_TYPE_LENGTH; i++)
         if (colorsFrenquencies[i] > maxValue)
-        {
             maxValue = colorsFrenquencies[i];
-            maxColorFrequencyIndex = i;
-        }
             
-    return maxColorFrequencyIndex;
+    return maxValue;
 }
 
 void setPixelColor (int lineCont, int colCont, int value, int matrixLine, int matrixCol, int matrix[matrixLine][matrixCol])
@@ -144,53 +142,64 @@ int main ()
         }
     }
 
-    int maxColorFrequencyIndex = getMaxColorFrequencyIndexInMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix);
+    int maxColorFrequency = getMaxColorFrequencyInMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix);
+    int colorsFrenquencies[] = {getColorFrequencyInMatrix(0, COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix), 
+                                    getColorFrequencyInMatrix(1, COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix), 
+                                    getColorFrequencyInMatrix(2, COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix), 
+                                    getColorFrequencyInMatrix(3, COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix), 
+                                    getColorFrequencyInMatrix(4, COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix)};
 
     // Transformando matriz RGB para matriz RGB contrastada
 
-    // 0 0 0 tem destaque 
-    if (maxColorFrequencyIndex == 0)
-        for (int i = 0; i < RGB_MATRIX_LINE; i++)
-            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-                if (rgbMatrix[i][j] != 0 && rgbMatrix[i + 1][j + 1] != 0 && rgbMatrix[i + 2][j + 2] != 0)
-                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-    
-    // 255 0 0 tem destaque
-    if (maxColorFrequencyIndex == 1)
-        for (int i = 0; i < RGB_MATRIX_LINE; i++)
-            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-                if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 0)
-                  setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-                else
-                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-    
-    // 0 255 0 tem destaque
-    if (maxColorFrequencyIndex == 2)
-        for (int i = 0; i < RGB_MATRIX_LINE; i++)
-            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-                if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
+    for (int i = 0; i < RGB_MATRIX_LINE; i++)
+        for (int j = 0; j < RGB_MATRIX_COL; j += 3)
+        {
+            // 0 0 0 tem destaque
+            if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i + 2][j + 2] == 0)
+            {
+                if (colorsFrenquencies[0] == maxColorFrequency)
                     setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
+            
+            // 255 0 0 tem destaque
+            if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 0)
+            {
+                if (colorsFrenquencies[1] == maxColorFrequency)
+                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                else
+                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
+            
+            // 0 255 0 tem destaque
+            if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
+            {
+                if (colorsFrenquencies[2] == maxColorFrequency)
+                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                else
+                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
 
-    // 0 0 255 tem destaque
-    if (maxColorFrequencyIndex == 3)
-        for (int i = 0; i < RGB_MATRIX_LINE; i++)
-            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-                if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 255)
+            // 0 0 255 tem destaque
+            if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 255)
+            {
+                if (colorsFrenquencies[3] == maxColorFrequency)
                     setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-    
-    // 255 255 0 tem destaque
-    if (maxColorFrequencyIndex == 4)
-        for (int i = 0; i < RGB_MATRIX_LINE; i++)
-            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-                if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
-                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-                else
-                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
 
+            // 255 255 0 tem destaque
+            if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
+            {
+                if (colorsFrenquencies[4] == maxColorFrequency)
+                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                else
+                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
+        }
+ 
     // Printando matriz RGB comprimida
     printMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix);
 
