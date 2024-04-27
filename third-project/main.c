@@ -40,7 +40,7 @@ int getColorFrequencyInMatrix (int colorIndex, int line, int col, int matrix[lin
     return colorFrequency;
 }
 
-int getMaxColorFrquencyIndexInMatrix (int line, int col, int matrix[line][col])
+int getMaxColorFrequencyIndexInMatrix (int line, int col, int matrix[line][col])
 {
     int maxValue = -1;
     int colorsFrenquencies[] = {getColorFrequencyInMatrix(0, line, col, matrix), getColorFrequencyInMatrix(1, line, col, matrix), 
@@ -58,6 +58,13 @@ int getMaxColorFrquencyIndexInMatrix (int line, int col, int matrix[line][col])
     return maxColorFrequencyIndex;
 }
 
+void setPixelColor (int lineCont, int colCont, int value, int matrixLine, int matrixCol, int matrix[matrixLine][matrixCol])
+{
+    matrix[lineCont][colCont] = value;
+    matrix[lineCont][colCont + 1] = value;
+    matrix[lineCont][colCont + 2] = value;
+}
+
 int main ()
 {
     // Obtendo primeira linha
@@ -67,9 +74,9 @@ int main ()
     int intensity;
     scanf("%c%c %d %d %d\n", &fileFormat[0], &fileFormat[1], &width, &height, &intensity); // Testar depois com %s
 
-    // Obtendo entradas da matrix
-
     // Matriz que ira armazenar as cores RGB de cada pixel
+    const int RGB_MATRIX_LINE = height;
+    const int RGB_MATRIX_COL = width * 3;
     int rgbMatrix[height][width * 3];
 
     // Matriz comprimida a partir de matriz RGB
@@ -116,6 +123,55 @@ int main ()
             }  
         }
     }
+
+    // Transformando matriz para dar constraste
+    int maxColorFrequencyIndex = getMaxColorFrequencyIndexInMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressesdMatrix);
+
+    if (maxColorFrequencyIndex == 0)
+        for (int i = 0; i < RGB_MATRIX_LINE; i++)
+            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
+                if (rgbMatrix[i][j] != 0 && rgbMatrix[i + 1][j + 1] != 0 && rgbMatrix[i + 2][j + 2] != 0)
+                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+    
+    if (maxColorFrequencyIndex == 1)
+        for (int i = 0; i < RGB_MATRIX_LINE; i++)
+            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
+            {
+                if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 0)
+                  setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                else
+                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
+    
+    if (maxColorFrequencyIndex == 2)
+        for (int i = 0; i < RGB_MATRIX_LINE; i++)
+            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
+            {
+                if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
+                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                else
+                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
+
+    if (maxColorFrequencyIndex == 3)
+        for (int i = 0; i < RGB_MATRIX_LINE; i++)
+            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
+            {
+                if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 255)
+                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                else
+                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
+    
+    if (maxColorFrequencyIndex == 4)
+        for (int i = 0; i < RGB_MATRIX_LINE; i++)
+            for (int j = 0; j < RGB_MATRIX_COL; j += 3)
+            {
+                if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
+                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                else
+                    setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+            }
 
     return 0;
 }
