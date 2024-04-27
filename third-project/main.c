@@ -1,5 +1,10 @@
 #include <stdio.h>
 
+#define RGB_LENGTH  3 // Numero de posicoes num RGB
+#define COLORS_TYPE_LENGTH  5 // Numero de cores a serem analisadas
+#define MAX_INPUT_LENGTH    1000 // Maximo de caracteres a serem lidos numa entrada
+
+// Insere valor zero em todas as posicoes da matriz
 void resetMatrix (int line, int col, int matrix[line][col])
 {
     for (int i = 0; i < line; i++)
@@ -7,6 +12,7 @@ void resetMatrix (int line, int col, int matrix[line][col])
             matrix[i][j] = 0;
 }
 
+// Obtem indice de cada cor
 int getColorIndex (int rgbValues[])
 {
     // 0 0 0
@@ -30,6 +36,7 @@ int getColorIndex (int rgbValues[])
         return 4;
 }
 
+// Obtem frequencia de uma cor na matriz
 int getColorFrequencyInMatrix (int colorIndex, int line, int col, int matrix[line][col])
 {  
     int colorFrequency = 0;
@@ -40,6 +47,7 @@ int getColorFrequencyInMatrix (int colorIndex, int line, int col, int matrix[lin
     return colorFrequency;
 }
 
+// Obtem o indice da cor com maior frequencia na matriz
 int getMaxColorFrequencyIndexInMatrix (int line, int col, int matrix[line][col])
 {
     int maxValue = -1;
@@ -48,7 +56,7 @@ int getMaxColorFrequencyIndexInMatrix (int line, int col, int matrix[line][col])
                                 getColorFrequencyInMatrix(4, line, col, matrix)};
 
     int maxColorFrequencyIndex;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < COLORS_TYPE_LENGTH; i++)
         if (colorsFrenquencies[i] > maxValue)
         {
             maxValue = colorsFrenquencies[i];
@@ -78,35 +86,36 @@ void printMatrix (int line, int col, int matrix[line][col])
 
 int main ()
 {
+    char fileFormat[2]; // Formato do arquivo
+    int width; // Comprimento da imagem em pixels
+    int height; // Altura da imagem em pixels
+    int intensity; // Intervalo de intensidade usado no RGB
+
     // Obtendo primeira linha
-    char fileFormat[2];
-    int width;
-    int height;
-    int intensity;
-    scanf("%c%c %d %d %d\n", &fileFormat[0], &fileFormat[1], &width, &height, &intensity); // Testar depois com %s
+    scanf("%c%c %d %d %d\n", &fileFormat[0], &fileFormat[1], &width, &height, &intensity);
 
     // Matriz que ira armazenar as cores RGB de cada pixel
     const int RGB_MATRIX_LINE = height;
-    const int RGB_MATRIX_COL = width * 3;
-    int rgbMatrix[height][width * 3];
+    const int RGB_MATRIX_COL = width * RGB_LENGTH;
+    int rgbMatrix[height][width * RGB_LENGTH];
 
-    // Matriz comprimida a partir de matriz RGB
+    // Matriz RGB comprimida
     const int COMPRESSED_MATRIX_LINE = height;
-    const int COMPRESSED_MATRIX_COL = 5;
-    int compressesdMatrix[COMPRESSED_MATRIX_LINE][COMPRESSED_MATRIX_COL];
-    resetMatrix(height, 5, compressesdMatrix);
+    const int COMPRESSED_MATRIX_COL = COLORS_TYPE_LENGTH;
+    int compressedMatrix[COMPRESSED_MATRIX_LINE][COMPRESSED_MATRIX_COL];
+    resetMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix); // Garantir que a matriz comece zerada
 
-    for (int i = 0; i < height; i++)
+    for (int i = 0; i < RGB_MATRIX_LINE; i++)
     {   
-        char rgbValuesInput[1000];
+        char rgbValuesInput[MAX_INPUT_LENGTH]; // Entrada para cada linha da matriz
         fgets(rgbValuesInput, sizeof(rgbValuesInput), stdin);
 
-        int rgbMatrixColCount = 0;
+        int rgbMatrixColCount = 0; // Contador de coluna da matriz RGB
 
-        int pixelCont = 0;
-        int onePixelRgbCont = 0;
-        int onePixelRgb[3];
-
+        int pixelCont = 0; // Conta quantos pixels foram lidos
+        int onePixelRgb[RGB_LENGTH]; // Vetor que guarda os valores RGB de um pixel
+        int onePixelRgbCont = 0; // Conta quantos elementos foram inseridos no vetor onePixelRgb
+        
         for (int j = 0; pixelCont != width;)
         {    
             if (rgbValuesInput[j] == '0' || rgbValuesInput[j] == ' ')
@@ -123,71 +132,69 @@ int main ()
             {
                 rgbMatrix[i][rgbMatrixColCount++] = 255;
                 onePixelRgb[onePixelRgbCont++] = 255;
-                j += 3;
+                j += RGB_LENGTH;
             }               
 
-            if (onePixelRgbCont == 3)
+            if (onePixelRgbCont == RGB_LENGTH) // Um pixel foi lido
             {
                 onePixelRgbCont = 0;
-                compressesdMatrix[i][getColorIndex(onePixelRgb)]++;
+                compressedMatrix[i][getColorIndex(onePixelRgb)]++;
                 pixelCont++;
             }  
         }
     }
 
-    // Printando matriz comprimida
-    printMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressesdMatrix);
+    int maxColorFrequencyIndex = getMaxColorFrequencyIndexInMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix);
 
-    // Transformando matriz para dar constraste
-    int maxColorFrequencyIndex = getMaxColorFrequencyIndexInMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressesdMatrix);
+    // Transformando matriz RGB para matriz RGB contrastada
 
+    // 0 0 0 tem destaque 
     if (maxColorFrequencyIndex == 0)
         for (int i = 0; i < RGB_MATRIX_LINE; i++)
             for (int j = 0; j < RGB_MATRIX_COL; j += 3)
                 if (rgbMatrix[i][j] != 0 && rgbMatrix[i + 1][j + 1] != 0 && rgbMatrix[i + 2][j + 2] != 0)
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
     
+    // 255 0 0 tem destaque
     if (maxColorFrequencyIndex == 1)
         for (int i = 0; i < RGB_MATRIX_LINE; i++)
             for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-            {
                 if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 0)
                   setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-            }
     
+    // 0 255 0 tem destaque
     if (maxColorFrequencyIndex == 2)
         for (int i = 0; i < RGB_MATRIX_LINE; i++)
             for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-            {
                 if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
                     setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-            }
 
+    // 0 0 255 tem destaque
     if (maxColorFrequencyIndex == 3)
         for (int i = 0; i < RGB_MATRIX_LINE; i++)
             for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-            {
                 if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 255)
                     setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-            }
     
+    // 255 255 0 tem destaque
     if (maxColorFrequencyIndex == 4)
         for (int i = 0; i < RGB_MATRIX_LINE; i++)
             for (int j = 0; j < RGB_MATRIX_COL; j += 3)
-            {
                 if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
                     setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
-            }
 
-    // Printando matrix RGB contrastada
+    // Printando matriz RGB comprimida
+    printMatrix(COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix);
+
+    // Printando matriz RGB contrastada
     printMatrix(RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
 
     return 0;
