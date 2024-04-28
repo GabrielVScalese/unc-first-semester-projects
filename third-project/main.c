@@ -82,6 +82,7 @@ void printMatrix (int line, int col, int matrix[line][col])
     }
 }
 
+// Verifica se houve empate entre cores com maior frequencia
 int hasFrequencyDraw (int colorsFrequencies[], int maxColorFrequency)
 {
     int qntFrequencyEqualMax = 0;
