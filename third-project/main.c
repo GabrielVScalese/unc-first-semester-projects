@@ -49,7 +49,7 @@ int getColorFrequencyInMatrix (int colorIndex, int line, int col, int matrix[lin
     return colorFrequency;
 }
 
-// Obtem o indice da cor com maior frequencia na matriz
+// Obtem cor com maior frequencia na matriz
 int getMaxColorFrequencyInMatrix (int line, int col, int matrix[line][col])
 {
     int maxValue = -1;
