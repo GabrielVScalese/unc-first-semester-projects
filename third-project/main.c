@@ -82,6 +82,19 @@ void printMatrix (int line, int col, int matrix[line][col])
     }
 }
 
+int hasFrequencyDraw (int colorsFrequencies[], int maxColorFrequency)
+{
+    int qntFrequencyEqualMax = 0;
+    for (int i = 0; i < COLORS_TYPE_LENGTH; i++)
+        if (colorsFrequencies[i] == maxColorFrequency)
+            qntFrequencyEqualMax++;
+        
+    if (qntFrequencyEqualMax > 1)
+        return 1;
+    
+    return 0;
+}
+
 int main ()
 {
     char fileFormat[2]; // Formato do arquivo
@@ -150,51 +163,65 @@ int main ()
                                     getColorFrequencyInMatrix(4, COMPRESSED_MATRIX_LINE, COMPRESSED_MATRIX_COL, compressedMatrix)};
 
     // Transformando matriz RGB para matriz RGB contrastada
-
     for (int i = 0; i < RGB_MATRIX_LINE; i++)
         for (int j = 0; j < RGB_MATRIX_COL; j += 3)
         {
-            // 0 0 0 tem destaque
-            if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i + 2][j + 2] == 0)
+            // Verifica frequencia de 0 0 0
+            if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 0)
             {
                 if (colorsFrenquencies[0] == maxColorFrequency)
-                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                {
+                    if (!hasFrequencyDraw(colorsFrenquencies, maxColorFrequency))
+                        setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                }
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
             }
             
-            // 255 0 0 tem destaque
+            // Verifica frequencia de 255 0 0
             if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 0)
             {
                 if (colorsFrenquencies[1] == maxColorFrequency)
-                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                {
+                    if (!hasFrequencyDraw(colorsFrenquencies, maxColorFrequency))
+                        setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                }
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
             }
             
-            // 0 255 0 tem destaque
+            // Verifica frequencia de 0 255 0
             if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
             {
                 if (colorsFrenquencies[2] == maxColorFrequency)
-                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                {
+                    if (!hasFrequencyDraw(colorsFrenquencies, maxColorFrequency))
+                        setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                }
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
             }
 
-            // 0 0 255 tem destaque
+            // Verifica frequencia de 0 0 255
             if (rgbMatrix[i][j] == 0 && rgbMatrix[i][j + 1] == 0 && rgbMatrix[i][j + 2] == 255)
             {
                 if (colorsFrenquencies[3] == maxColorFrequency)
-                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                {
+                    if (!hasFrequencyDraw(colorsFrenquencies, maxColorFrequency))
+                        setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                }
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
             }
 
-            // 255 255 0 tem destaque
+            // Verifica frequencia de 255 255 0 
             if (rgbMatrix[i][j] == 255 && rgbMatrix[i][j + 1] == 255 && rgbMatrix[i][j + 2] == 0)
             {
                 if (colorsFrenquencies[4] == maxColorFrequency)
-                    setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                {
+                    if (!hasFrequencyDraw(colorsFrenquencies, maxColorFrequency))
+                        setPixelColor(i, j, 0, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
+                }
                 else
                     setPixelColor(i, j, 255, RGB_MATRIX_LINE, RGB_MATRIX_COL, rgbMatrix);
             }
