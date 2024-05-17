@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <stdlib.h>
 
 #define TEXT_INPUT_LENGTH 1000
 #define WORDS_NUMBER 1000
@@ -44,13 +45,13 @@ int listContainsWord(char list[WORDS_NUMBER][TEXT_INPUT_LENGTH], char word[])
     return 0;
 }
 
-int getTextPolarity (char text[paragraphQnt][TEXT_INPUT_LENGTH])
+int getTextPolarity (char text[paragraphQnt][TEXT_INPUT_LENGTH], int initialParagraph, int finalParagraph)
 {
     char partialWord[TEXT_INPUT_LENGTH];
     int positiveWordCount = 0;
     int negativeWordCount = 0;
 
-    for (int i = 0; i < paragraphQnt; i++)
+    for (int i = initialParagraph - 1; i <= finalParagraph - 1; i++)
         for (int j = 0; text[i][j] != '\n'; j++)
         {
             if (text[i][j] == ' ' || text[i][j] == '.' || text[i][j] == ',')
@@ -66,10 +67,24 @@ int getTextPolarity (char text[paragraphQnt][TEXT_INPUT_LENGTH])
             else
                 strncat(partialWord, &text[i][j], 1);
         }
+
+    if ((positiveWordCount - negativeWordCount) > 3)
+        return 1;
     
-    return 0;
+    if (positiveWordCount > 0 && negativeWordCount == 0)
+        return 1;
+    
+    if ((negativeWordCount - positiveWordCount) > 3)
+        return -1;
+    
+    if (positiveWordCount == 0 && negativeWordCount > 0)
+        return -1;
+    
+    if (positiveWordCount > 0 && negativeWordCount > 0 && abs(positiveWordCount - negativeWordCount) <= 3)
+        return -1;
 }
 
+// Falta observacao sobre sinal a mais sobre palavra do dicionario
 int main ()
 {
     scanf("%d\n", &paragraphQnt);
@@ -92,7 +107,7 @@ int main ()
     setWordList(negativeWordList, textInput);
 
 
-    getTextPolarity(text);
+    getTextPolarity(text, 1, 1);
 
     return 0;
 }
