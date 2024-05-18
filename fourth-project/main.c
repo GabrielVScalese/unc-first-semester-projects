@@ -47,7 +47,7 @@ int convertCharToInt (char charNumber)
     return charNumber - '0';
 }
 
-// Limpar lixo de strings
+// Limpar lixo de string
 void resetString (char oneString[])
 {
     for (int i = 0; oneString[i] != '\0'; i++)
