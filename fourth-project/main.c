@@ -4,9 +4,16 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+// Constantes
 #define TEXT_INPUT_LENGTH 1000
 #define WORDS_NUMBER 1000
+#define ONE_QUESTION_INPUT_LENGTH 4
+#define POLARITY_TEXT_LENGTH 9
+#define POSITIVE_POLARITY_TEXT "positiva"
+#define NEGATIVE_POLARITY_TEXT "negativa"
+#define NEUTRAL_POLARITY_TEXT "neutra"
 
+// Estruturas
 typedef struct TextAnalysis {
     int positiveWordCount;
     int negativeWordCount;
@@ -25,33 +32,39 @@ typedef struct Sentence  {
 typedef struct TextPolarity {
     int positiveWordCount;
     int negativeWordCount;
-    int polarity;
+    char polarity[POLARITY_TEXT_LENGTH];
 } TextPolarity;
 
+// Variaveis globais
 int paragraphQnt;
 char positiveWordList[WORDS_NUMBER][TEXT_INPUT_LENGTH];
 char negativeWordList[WORDS_NUMBER][TEXT_INPUT_LENGTH];
 
+int convertCharToInt (char charNumber)
+{
+    return charNumber - '0';
+}
+
+// Limpar lixo de strings
 void resetString (char oneString[])
 {
     for (int i = 0; oneString[i] != '\0'; i++)
         oneString[i] = '\0';
 }
 
+// Preencher lista de palavras
 void setWordList (char wordList[WORDS_NUMBER][TEXT_INPUT_LENGTH], char textInput[])
 {
     char partialWord[TEXT_INPUT_LENGTH];
+    resetString(partialWord); // Para uso do strncat
 
     int wordlistCount = 0;
-    for (int i = 0; ; i++)
+    for (int i = 0; textInput[i] != '\n'; i++)
     {
         if (textInput[i] == ' ' || textInput[i] == '\n')
         {
             strcpy(wordList[wordlistCount++], partialWord);
             resetString(partialWord);
-
-            if (textInput[i] == '\n')
-                break;
         }
         else
             strncat(partialWord, &textInput[i], 1);
@@ -67,7 +80,7 @@ int listContainsWord(char list[WORDS_NUMBER][TEXT_INPUT_LENGTH], char word[])
     return 0;
 }
 
-Sentence getSentenceFromParagraph (char text[], int initialLineIndex, int initialColIndex)
+Sentence getSentenceFromParagraph (char paragraph[], int initialLineIndex, int initialColIndex)
 {
     Sentence oneSentence;
     oneSentence.initialLineIndex = initialLineIndex;
@@ -76,16 +89,16 @@ Sentence getSentenceFromParagraph (char text[], int initialLineIndex, int initia
     oneSentence.wordsNumber = 0;
     resetString(oneSentence.content);
 
-    for (int j = initialColIndex; text[j] != '\n';j++)
+    for (int j = initialColIndex; paragraph[j] != '\n';j++)
     {
-        if (isalpha(text[j]))
+        if (isalpha(paragraph[j]))
             oneSentence.lettersNumber++;
 
-        if (text[j] == ' ')
+        if (paragraph[j] == ' ')
             oneSentence.wordsNumber++;
         
-        strncat(oneSentence.content, &text[j], 1);
-        if (text[j] == '.')
+        strncat(oneSentence.content, &paragraph[j], 1);
+        if (paragraph[j] == '.')
         {
             oneSentence.finalColIndex = j;
             oneSentence.lettersNumber = oneSentence.lettersNumber;
@@ -95,7 +108,7 @@ Sentence getSentenceFromParagraph (char text[], int initialLineIndex, int initia
     }
 }
 
-Sentence getLongestSentence (char text[paragraphQnt][TEXT_INPUT_LENGTH])
+Sentence getLongestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH])
 {
     Sentence oneSentence;
     Sentence longestSentence;
@@ -103,9 +116,9 @@ Sentence getLongestSentence (char text[paragraphQnt][TEXT_INPUT_LENGTH])
     longestSentence.lettersNumber = 0;
     for (int i = 0; i < paragraphQnt; i++)
     {
-        for (int j = 0; text[i][j] != '\n';)
+        for (int j = 0; allParagraphs[i][j] != '\n';)
         {
-            Sentence oneSentence = getSentenceFromParagraph(text[i], i, j);
+            Sentence oneSentence = getSentenceFromParagraph(allParagraphs[i], i, j);
 
             if (oneSentence.lettersNumber > longestSentence.lettersNumber)
             {
@@ -114,6 +127,8 @@ Sentence getLongestSentence (char text[paragraphQnt][TEXT_INPUT_LENGTH])
                 longestSentence.initialColIndex = oneSentence.initialColIndex;
                 longestSentence.finalColIndex = oneSentence.finalColIndex;
                 longestSentence.lettersNumber = oneSentence.lettersNumber;
+                longestSentence.wordsNumber == oneSentence.wordsNumber; // APENAS PARA DEBUG RETIRAR DEPOIS
+                strcpy(longestSentence.content, oneSentence.content); // APENAS PARA DEBUG RETIRAR DEPOIS
             }
 
             j = oneSentence.finalColIndex + 1;
@@ -123,7 +138,7 @@ Sentence getLongestSentence (char text[paragraphQnt][TEXT_INPUT_LENGTH])
     return longestSentence;
 }
 
-Sentence getSmallestSentence (char text[paragraphQnt][TEXT_INPUT_LENGTH])
+Sentence getSmallestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH])
 {
     Sentence oneSentence;
     Sentence smallestSentence;
@@ -131,9 +146,9 @@ Sentence getSmallestSentence (char text[paragraphQnt][TEXT_INPUT_LENGTH])
     smallestSentence.wordsNumber = 1000;
     for (int i = 0; i < paragraphQnt; i++)
     {
-        for (int j = 0; text[i][j] != '\n';)
+        for (int j = 0; allParagraphs[i][j] != '\n';)
         {
-            Sentence oneSentence = getSentenceFromParagraph(text[i], i, j);
+            Sentence oneSentence = getSentenceFromParagraph(allParagraphs[i], i, j);
 
             if (oneSentence.wordsNumber < smallestSentence.wordsNumber)
             {
@@ -159,19 +174,19 @@ TextPolarity getPolarityFromAnalysis (TextAnalysis textAnalysis)
     textPolarity.negativeWordCount = textAnalysis.negativeWordCount;
     
     if ((textPolarity.positiveWordCount - textPolarity.negativeWordCount) > 3)
-        textPolarity.polarity = 1;
+        strcpy(textPolarity.polarity, POSITIVE_POLARITY_TEXT);
     
     if (textPolarity.positiveWordCount > 0 && textPolarity.negativeWordCount == 0)
-        textPolarity.polarity = 1;
+         strcpy(textPolarity.polarity, POSITIVE_POLARITY_TEXT);
     
     if ((textPolarity.negativeWordCount - textPolarity.positiveWordCount) > 3)
-       textPolarity.polarity = -1;
+        strcpy(textPolarity.polarity, NEGATIVE_POLARITY_TEXT);
     
     if (textPolarity.positiveWordCount == 0 && textPolarity.negativeWordCount > 0)
-        textPolarity.polarity = -1;
+        strcpy(textPolarity.polarity, NEGATIVE_POLARITY_TEXT);
     
     if (textPolarity.positiveWordCount > 0 && textPolarity.negativeWordCount > 0 && abs(textPolarity.positiveWordCount - textPolarity.negativeWordCount) <= 3)
-        textPolarity.polarity = 0;
+        strcpy(textPolarity.polarity, NEUTRAL_POLARITY_TEXT);
 
     return textPolarity;
 }
@@ -256,45 +271,50 @@ int main ()
 
     // Leitura das questoes
     int questionQnt;
-    scanf("%d", &questionQnt);;
+    scanf("%d\n", &questionQnt);;
 
-    TextPolarity textPolarity;
+    char questions[questionQnt][ONE_QUESTION_INPUT_LENGTH];
     for (int i = 0; i < questionQnt; i++)
     {
-        int questionNumber, questionIndex = -1;
-        scanf("%d", &questionNumber, &questionIndex);
-
-        switch(questionNumber)
+        char oneQuestionInput[ONE_QUESTION_INPUT_LENGTH];
+        fgets(oneQuestionInput, sizeof(oneQuestionInput), stdin);
+        getchar();
+        strcpy(questions[i], oneQuestionInput);
+    }
+    
+    for (int i = 0; i < questionQnt; i++)
+    {
+        TextPolarity textPolarity;
+        switch(questions[i][0])
         {
-            case 1:
-            {
+            case '1':
                 textPolarity = getPolarityFromParagraphs(allParagraphs, 0, paragraphQnt - 1);
-                printf("%d Palavras positivas, %d Palavras negativas: Polaridade %d", textPolarity.positiveWordCount, textPolarity.negativeWordCount, textPolarity.polarity);
-            }
-               
             break;
-            case 2: 
+
+            case '2': 
             {
-                Sentence smallestSentence = getSmallestSentence(allParagraphs);
-                textPolarity = getPolarityFromSentence(smallestSentence);
-                printf("%d Palavras positivas, %d Palavras negativas: Polaridade %d", textPolarity.positiveWordCount, textPolarity.negativeWordCount, textPolarity.polarity);
-                /*if (questionIndex != -1)
-                    //textPolarity = getPolarityFromText(text, 0, paragraphQnt - 1);
+                if (strlen(questions[i]) > 2) // Considera \n
+                    textPolarity = getPolarityFromParagraphs(allParagraphs, convertCharToInt(questions[i][2]), convertCharToInt(questions[i][2]));
                 else
                 {
-                    Sentence longestSentence = getLongestSentence(text);
-                    // textPolarity = getTextPolarity(text, longestSentence.initialLineIndex, longestSentence.initialColIndex, longestSentence.finalLineIndex, longestSentence.finalColIndex);
-                }*/
+                    Sentence longestSentence = getLongestSentence(allParagraphs);
+                    textPolarity = getPolarityFromSentence(longestSentence);
+                }
             } 
-            case 3:
+            break;
+
+            case '3':
             {
                 Sentence smallestSentence = getSmallestSentence(allParagraphs);
                 textPolarity = getPolarityFromSentence(smallestSentence);
-                printf("%d Palavras positivas, %d Palavras negativas: Polaridade %d", textPolarity.positiveWordCount, textPolarity.negativeWordCount, textPolarity.polarity);
             }
             break;
         }
+
+        printf("%d Palavras positivas, %d Palavras negativas: Polaridade %s\n", textPolarity.positiveWordCount, textPolarity.negativeWordCount, textPolarity.polarity);
     }
+
+    
     
     return 0;
 }
