@@ -71,6 +71,7 @@ void setWordList (char wordList[WORDS_NUMBER][TEXT_INPUT_LENGTH], char textInput
             strncat(partialWord, &textInput[i], 1);
 }
 
+// Verifica se algum tipo de lista contem tal palavra
 int listContainsWord(char list[WORDS_NUMBER][TEXT_INPUT_LENGTH], char word[])
 {
     for (int i = 0; list[i][0] != '\0'; i++)
@@ -113,10 +114,8 @@ Sentence getSentenceFromParagraph (char paragraph[], int initialLineIndex, int i
 Sentence getLongestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH])
 {
     Sentence longestSentence;
-
     longestSentence.lettersNumber = MIN_VALUE;
     for (int i = 0; i < paragraphQnt; i++)
-    {
         for (int j = 0; allParagraphs[i][j] != '\n';)
         {
             Sentence oneSentence = getSentenceFromParagraph(allParagraphs[i], i, j);
@@ -134,7 +133,6 @@ Sentence getLongestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH]
 
             j = oneSentence.finalColIndex + 1;
         }
-    }
 
     return longestSentence;
 }
@@ -144,7 +142,6 @@ Sentence getSmallestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH
     Sentence smallestSentence;
     smallestSentence.wordsNumber = MAX_VALUE;
     for (int i = 0; i < paragraphQnt; i++)
-    {
         for (int j = 0; allParagraphs[i][j] != '\n';)
         {
             Sentence oneSentence = getSentenceFromParagraph(allParagraphs[i], i, j);
@@ -161,11 +158,11 @@ Sentence getSmallestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH
 
             j = oneSentence.finalColIndex + 1;
         }
-    }
 
     return smallestSentence;
 }
 
+// Obtem polaridade (positiva ou negativa) de um conteudo a partir da contagem de palavras positivas e negativas
 TextPolarity getPolarityFromAnalysis (TextAnalysis textAnalysis)
 {
     TextPolarity textPolarity;
@@ -193,12 +190,12 @@ TextPolarity getPolarityFromAnalysis (TextAnalysis textAnalysis)
     return textPolarity;
 }
 
+// Obtem contagem de palavras positivas e negativas de um trecho
 TextAnalysis getAnalysisFromText (char text[])
 {
     TextAnalysis textAnalysis;
     textAnalysis.positiveWordCount = 0;
     textAnalysis.negativeWordCount = 0;
-    
     char partialWord[TEXT_INPUT_LENGTH];
     resetString(partialWord);
     for (int i = 0; i < strlen(text); i++)
@@ -220,6 +217,7 @@ TextAnalysis getAnalysisFromText (char text[])
     return textAnalysis;
 }
 
+// Obtem polaridade de paragrafo(s)
 TextPolarity getPolarityFromParagraphs (char paragraphs[paragraphQnt][TEXT_INPUT_LENGTH], int initialParagraph, int finalParagraph)
 {
     TextAnalysis allParagraphsAnalysis;
@@ -235,13 +233,13 @@ TextPolarity getPolarityFromParagraphs (char paragraphs[paragraphQnt][TEXT_INPUT
     return getPolarityFromAnalysis(allParagraphsAnalysis);
 }
 
+// Obtem polaridade de uma sentenca
 TextPolarity getPolarityFromSentence (Sentence oneSentence)
 {
     TextAnalysis sentenceAnalysis = getAnalysisFromText(oneSentence.content);
     return getPolarityFromAnalysis(sentenceAnalysis);
 }
 
-// Falta observacao sobre sinal a mais sobre palavra do dicionario
 int main ()
 {
     scanf("%d\n", &paragraphQnt);
@@ -265,7 +263,7 @@ int main ()
 
     // Leitura das questoes
     int questionQnt;
-    scanf("%d\n", &questionQnt);;
+    scanf("%d\n", &questionQnt);
     char questions[questionQnt][ONE_QUESTION_INPUT_LENGTH];
     resetString(questions[0]);
     resetString(questions[1]);
@@ -279,14 +277,17 @@ int main ()
             i++;
     }
     
+    // Tratamento para cada tipo de questao
     for (int i = 0; i < questionQnt; i++)
     {
         TextPolarity textPolarity;
         switch(questions[i][0])
         {
+            // Obter polaridade de todos os paragrafos
             case '1':
                 textPolarity = getPolarityFromParagraphs(allParagraphs, 0, paragraphQnt - 1);
             break;
+            // Obter polaridade de um paragrafo i ou da sentenca mais longa
             case '2': 
             {
                 if (strlen(questions[i]) > 2)
@@ -298,6 +299,7 @@ int main ()
                 }
             } 
             break;
+            // Obter polaridade da sentenca mais curta
             case '3':
             {
                 Sentence smallestSentence = getSmallestSentence(allParagraphs);
