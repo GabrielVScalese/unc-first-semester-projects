@@ -13,6 +13,7 @@ typedef struct Sentence  {
         int initialColIndex;
         int finalColIndex;
         int lettersNumber;
+        int wordsNumber;
 } Sentence;
 
 int paragraphQnt;
@@ -54,36 +55,54 @@ int listContainsWord(char list[WORDS_NUMBER][TEXT_INPUT_LENGTH], char word[])
     return 0;
 }
 
+Sentence getSentenceFromParagraph (char text[], int initialLineIndex, int initialColIndex)
+{
+    Sentence oneSentence;
+    oneSentence.initialLineIndex = initialLineIndex;
+    oneSentence.initialColIndex = initialColIndex;
+    oneSentence.lettersNumber = 0;
+    oneSentence.wordsNumber = 0;
+
+    for (int j = initialColIndex; text[j] != '\n';j++)
+    {
+        if (isalpha(text[j]))
+            oneSentence.lettersNumber++;
+
+        if (text[j] == ' ')
+            oneSentence.wordsNumber++;
+        
+        if (text[j] == '.')
+        {
+            oneSentence.finalColIndex = j;
+            oneSentence.lettersNumber = oneSentence.lettersNumber;
+           
+            return oneSentence;
+        }
+    }
+}
+
 Sentence getLongestSentence (char text[paragraphQnt][TEXT_INPUT_LENGTH])
 {
     Sentence oneSentence;
     Sentence longestSentence;
 
-    oneSentence.lettersNumber = 0;
     longestSentence.lettersNumber = 0;
     for (int i = 0; i < paragraphQnt; i++)
     {
-        oneSentence.initialLineIndex = i;
-        oneSentence.initialColIndex = 0;
-        for (int j = 0; text[i][j] != '\n';j++)
+        for (int j = 0; text[i][j] != '\n';)
         {
-            if (isalpha(text[i][j]))
-                oneSentence.lettersNumber++;
-            
-            if (text[i][j] == '.')
-            {
-                if (oneSentence.lettersNumber > longestSentence.lettersNumber)
-                {
-                    longestSentence.initialLineIndex = oneSentence.initialLineIndex;
-                    longestSentence.finalLineIndex = i;
-                    longestSentence.initialColIndex = oneSentence.initialColIndex;
-                    longestSentence.finalColIndex = j;
-                    longestSentence.lettersNumber = oneSentence.lettersNumber;
-                }
+            Sentence oneSentence = getSentenceFromParagraph(text[i], i, j);
 
-                oneSentence.lettersNumber = 0;
-                oneSentence.initialColIndex = j;
+            if (oneSentence.lettersNumber > longestSentence.lettersNumber)
+            {
+                longestSentence.initialLineIndex = i;
+                longestSentence.finalLineIndex = i;
+                longestSentence.initialColIndex = oneSentence.initialColIndex;
+                longestSentence.finalColIndex = oneSentence.finalColIndex;
+                longestSentence.lettersNumber = oneSentence.lettersNumber;
             }
+
+            j = oneSentence.finalColIndex + 1;
         }
     }
 
@@ -142,8 +161,6 @@ int getPolarity (char text[paragraphQnt][TEXT_INPUT_LENGTH], int initialLineInde
         return -1;
 }
 
-
-
 // Falta observacao sobre sinal a mais sobre palavra do dicionario
 int main ()
 {
@@ -166,12 +183,7 @@ int main ()
     fgets(textInput, sizeof(textInput), stdin);
     setWordList(negativeWordList, textInput);
 
-    // getTextPolarity(text, 1, 1);
-    // getLongestSentence(text);
-    //Sentence longestSentence = getLongestSentence(text);
-    //getPolarity(text, longestSentence.initialLineIndex, longestSentence.initialColIndex, longestSentence.finalLineIndex, longestSentence.finalColIndex);
-
-    getPolarity(text, 0, 0, 0, TEXT_INPUT_LENGTH);
+    getLongestSentence(text);
 
     return 0;
 }
