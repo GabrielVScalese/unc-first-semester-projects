@@ -94,7 +94,7 @@ Sentence getSentenceFromParagraph (char paragraph[], int initialLineIndex, int i
         if (isalpha(paragraph[j]))
             oneSentence.lettersNumber++;
 
-        if (paragraph[j] == ' ')
+        if (paragraph[j] == ' ' || paragraph[j] == '.')
             oneSentence.wordsNumber++;
         
         strncat(oneSentence.content, &paragraph[j], 1);
@@ -106,6 +106,8 @@ Sentence getSentenceFromParagraph (char paragraph[], int initialLineIndex, int i
             return oneSentence;
         }
     }
+
+    return oneSentence;
 }
 
 Sentence getLongestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH])
@@ -115,7 +117,7 @@ Sentence getLongestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH]
     longestSentence.lettersNumber = MIN_VALUE;
     for (int i = 0; i < paragraphQnt; i++)
     {
-        for (int j = 0; strlen(allParagraphs[i]);)
+        for (int j = 0; allParagraphs[i][j] != '\n';)
         {
             Sentence oneSentence = getSentenceFromParagraph(allParagraphs[i], i, j);
 
@@ -126,7 +128,7 @@ Sentence getLongestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH]
                 longestSentence.initialColIndex = oneSentence.initialColIndex;
                 longestSentence.finalColIndex = oneSentence.finalColIndex;
                 longestSentence.lettersNumber = oneSentence.lettersNumber;
-                longestSentence.wordsNumber == oneSentence.wordsNumber; 
+                longestSentence.wordsNumber = oneSentence.wordsNumber; 
                 strcpy(longestSentence.content, oneSentence.content);
             }
 
@@ -143,7 +145,7 @@ Sentence getSmallestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH
     smallestSentence.wordsNumber = MAX_VALUE;
     for (int i = 0; i < paragraphQnt; i++)
     {
-        for (int j = 0; j < strlen(allParagraphs[i]);)
+        for (int j = 0; allParagraphs[i][j] != '\n';)
         {
             Sentence oneSentence = getSentenceFromParagraph(allParagraphs[i], i, j);
 
@@ -184,6 +186,9 @@ TextPolarity getPolarityFromAnalysis (TextAnalysis textAnalysis)
     
     if (textPolarity.positiveWordCount > 0 && textPolarity.negativeWordCount > 0 && abs(textPolarity.positiveWordCount - textPolarity.negativeWordCount) <= 3)
         strcpy(textPolarity.polarity, NEUTRAL_POLARITY_TEXT);
+    
+    if (textPolarity.positiveWordCount  == 0 && textPolarity.negativeWordCount == 0)
+        strcpy(textPolarity.polarity, NEUTRAL_POLARITY_TEXT);
 
     return textPolarity;
 }
@@ -198,7 +203,7 @@ TextAnalysis getAnalysisFromText (char text[])
     resetString(partialWord);
     for (int i = 0; i < strlen(text); i++)
     {
-        if (text[i] == ' ' || text[i] == '.' || text[i] == ',')
+        if (text[i] == ' ' || text[i] == '.' || text[i] == ',' || text[i] == ';' || text[i] == '?' || text[i] == '!') // Se isso ocorre, termina uma palavra 
         {
             if (listContainsWord(positiveWordList, partialWord))
                 textAnalysis.positiveWordCount++;
@@ -262,11 +267,16 @@ int main ()
     int questionQnt;
     scanf("%d\n", &questionQnt);;
     char questions[questionQnt][ONE_QUESTION_INPUT_LENGTH];
-    for (int i = 0; i < questionQnt; i++)
+    resetString(questions[0]);
+    resetString(questions[1]);
+    for (int i = 0; i < questionQnt;)
     {
-        char oneQuestionInput[ONE_QUESTION_INPUT_LENGTH];
-        fgets(oneQuestionInput, sizeof(oneQuestionInput), stdin);
-        strcpy(questions[i], oneQuestionInput);
+        char ch;
+        scanf("%c", &ch);
+        if (ch != '\n')
+            strncat(questions[i], &ch, 1);
+        else
+            i++;
     }
     
     for (int i = 0; i < questionQnt; i++)
