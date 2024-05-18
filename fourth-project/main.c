@@ -59,7 +59,7 @@ void setWordList (char wordList[WORDS_NUMBER][TEXT_INPUT_LENGTH], char textInput
     resetString(partialWord); // Para uso do strncat
 
     int wordlistCount = 0;
-    for (int i = 0; textInput[i] != '\n'; i++)
+    for (int i = 0; i < strlen(textInput); i++)
     {
         if (textInput[i] == ' ' || textInput[i] == '\n')
         {
@@ -116,7 +116,7 @@ Sentence getLongestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH]
     longestSentence.lettersNumber = 0;
     for (int i = 0; i < paragraphQnt; i++)
     {
-        for (int j = 0; allParagraphs[i][j] != '\n';)
+        for (int j = 0; strlen(allParagraphs[i]); j = oneSentence.finalColIndex + 1)
         {
             Sentence oneSentence = getSentenceFromParagraph(allParagraphs[i], i, j);
 
@@ -127,11 +127,9 @@ Sentence getLongestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH]
                 longestSentence.initialColIndex = oneSentence.initialColIndex;
                 longestSentence.finalColIndex = oneSentence.finalColIndex;
                 longestSentence.lettersNumber = oneSentence.lettersNumber;
-                longestSentence.wordsNumber == oneSentence.wordsNumber; // APENAS PARA DEBUG RETIRAR DEPOIS
-                strcpy(longestSentence.content, oneSentence.content); // APENAS PARA DEBUG RETIRAR DEPOIS
+                longestSentence.wordsNumber == oneSentence.wordsNumber; 
+                strcpy(longestSentence.content, oneSentence.content);
             }
-
-            j = oneSentence.finalColIndex + 1;
         }
     }
 
@@ -313,8 +311,6 @@ int main ()
 
         printf("%d Palavras positivas, %d Palavras negativas: Polaridade %s\n", textPolarity.positiveWordCount, textPolarity.negativeWordCount, textPolarity.polarity);
     }
-
-    
     
     return 0;
 }
