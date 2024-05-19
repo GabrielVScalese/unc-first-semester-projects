@@ -267,9 +267,9 @@ int main ()
     char questions[questionQnt][ONE_QUESTION_INPUT_LENGTH];
     for (int i = 0; i < questionQnt;i++)
     {
-        char input[TEXT_INPUT_LENGTH];
-        fgets(input, sizeof(input), stdin);
-        strcpy(questions[i], input);
+        char textInput[TEXT_INPUT_LENGTH];
+        fgets(textInput, sizeof(textInput), stdin);
+        strcpy(questions[i], textInput);
     }
     
     // Tratamento para cada tipo de questao
