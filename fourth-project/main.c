@@ -47,7 +47,7 @@ int convertCharToInt (char charNumber)
     return charNumber - '0';
 }
 
-// Limpar lixo de string
+// Limpa lixo de string
 void resetString (char oneString[])
 {
     for (int i = 0; oneString[i] != '\0'; i++)
@@ -265,16 +265,11 @@ int main ()
     int questionQnt;
     scanf("%d\n", &questionQnt);
     char questions[questionQnt][ONE_QUESTION_INPUT_LENGTH];
-    resetString(questions[0]);
-    resetString(questions[1]);
-    for (int i = 0; i < questionQnt;)
+    for (int i = 0; i < questionQnt;i++)
     {
-        char ch;
-        scanf("%c", &ch);
-        if (ch != '\n')
-            strncat(questions[i], &ch, 1);
-        else
-            i++;
+        char input[TEXT_INPUT_LENGTH];
+        fgets(input, sizeof(input), stdin);
+        strcpy(questions[i], input);
     }
     
     // Tratamento para cada tipo de questao
