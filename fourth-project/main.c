@@ -95,15 +95,13 @@ Sentence getSentenceFromParagraph (char paragraph[], int initialLineIndex, int i
         if (isalpha(paragraph[j]))
             oneSentence.lettersNumber++;
 
-        if (paragraph[j] == ' ' || paragraph[j] == '.')
+        if ((paragraph[j] == ' ' || paragraph[j] == '.' || paragraph[j] == ',' || paragraph[j] == ';' || paragraph[j] == '?' || paragraph[j] == '!' || paragraph[j] == ':') && isalpha(paragraph[j - 1]))
             oneSentence.wordsNumber++;
         
         strncat(oneSentence.content, &paragraph[j], 1);
         if (paragraph[j] == '.')
         {
             oneSentence.finalColIndex = j;
-            oneSentence.lettersNumber = oneSentence.lettersNumber;
-           
             return oneSentence;
         }
     }
@@ -153,6 +151,7 @@ Sentence getSmallestSentence (char allParagraphs[paragraphQnt][TEXT_INPUT_LENGTH
                 smallestSentence.initialColIndex = oneSentence.initialColIndex;
                 smallestSentence.finalColIndex = oneSentence.finalColIndex;
                 smallestSentence.wordsNumber = oneSentence.wordsNumber;
+                smallestSentence.lettersNumber = oneSentence.lettersNumber;
                 strcpy(smallestSentence.content, oneSentence.content);
             }
 
@@ -200,7 +199,7 @@ TextAnalysis getAnalysisFromText (char text[])
     resetString(partialWord);
     for (int i = 0; i < strlen(text); i++)
     {
-        if (text[i] == ' ' || text[i] == '.' || text[i] == ',' || text[i] == ';' || text[i] == '?' || text[i] == '!') // Se isso ocorre, termina uma palavra 
+        if ((text[i] == ' ' || text[i] == '.' || text[i] == ',' || text[i] == ';' || text[i] == '?' || text[i] == '!' || text[i] == ':') && text[i - 1] != '.') // Se isso ocorre, termina uma palavra 
         {
             if (listContainsWord(positiveWordList, partialWord))
                 textAnalysis.positiveWordCount++;
@@ -282,20 +281,21 @@ int main ()
             case '1':
                 textPolarity = getPolarityFromParagraphs(allParagraphs, 0, paragraphQnt - 1);
             break;
-            // Obter polaridade de um paragrafo i ou da sentenca mais longa
+            // Obter polaridade de um paragrafo i
             case '2': 
             {
-                if (strlen(questions[i]) > 2)
-                    textPolarity = getPolarityFromParagraphs(allParagraphs, convertCharToInt(questions[i][2]), convertCharToInt(questions[i][2]));
-                else
-                {
-                    Sentence longestSentence = getLongestSentence(allParagraphs);
-                    textPolarity = getPolarityFromSentence(longestSentence);
-                }
+                textPolarity = getPolarityFromParagraphs(allParagraphs, convertCharToInt(questions[i][2]), convertCharToInt(questions[i][2]));
             } 
             break;
-            // Obter polaridade da sentenca mais curta
+            // Obter polaridade da sentenca mais longa
             case '3':
+            {
+                Sentence longestSentence = getLongestSentence(allParagraphs);
+                textPolarity = getPolarityFromSentence(longestSentence);
+            }
+            break;
+            // Obter polaridade da sentenca mais curta
+            case '4':
             {
                 Sentence smallestSentence = getSmallestSentence(allParagraphs);
                 textPolarity = getPolarityFromSentence(smallestSentence);
