@@ -95,7 +95,7 @@ Sentence getSentenceFromParagraph (char paragraph[], int initialLineIndex, int i
         if (isalpha(paragraph[j]))
             oneSentence.lettersNumber++;
 
-        if ((paragraph[j] == ' ' || paragraph[j] == '.' || paragraph[j] == ',' || paragraph[j] == ';' || paragraph[j] == '?' || paragraph[j] == '!' || paragraph[j] == ':') && isalpha(paragraph[j - 1]))
+        if ((paragraph[j] == ' ' || paragraph[j] == '.' || paragraph[j] == ',' || paragraph[j] == ';' || paragraph[j] == '?' || paragraph[j] == '!' || paragraph[j] == ':') && paragraph[j - 1] != '.') // Se isso ocorre, termina uma palavra 
             oneSentence.wordsNumber++;
         
         strncat(oneSentence.content, &paragraph[j], 1);
